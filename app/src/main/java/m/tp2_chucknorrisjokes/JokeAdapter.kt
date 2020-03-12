@@ -7,12 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class JokeAdapter(var listJokes :List<Joke>) : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>()
-{
-    class JokeViewHolder(val textview : TextView) : RecyclerView.ViewHolder(textview)
+class JokeAdapter(var listJokes: MutableList<Joke>) :
+    RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
+    class JokeViewHolder(val textview: TextView) : RecyclerView.ViewHolder(textview)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder
-    {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
         //creation of a joke layout and his holder
         val textviewCreated = LayoutInflater.from(parent.context)
             .inflate(R.layout.joke_layout, parent, false) as TextView
@@ -20,13 +19,17 @@ class JokeAdapter(var listJokes :List<Joke>) : RecyclerView.Adapter<JokeAdapter.
         return JokeViewHolder(textviewCreated)
     }
 
-    override fun getItemCount(): Int
-    {
+    override fun getItemCount(): Int {
         return listJokes.count()
     }
 
     override fun onBindViewHolder(holder: JokeViewHolder, position: Int) {
-        holder.textview.text=listJokes[position].value
+        holder.textview.text = listJokes[position].value
+    }
+
+    fun addJoke(joke: Joke) {
+        this.listJokes.add(joke)
+        this.notifyDataSetChanged()
     }
 
 }

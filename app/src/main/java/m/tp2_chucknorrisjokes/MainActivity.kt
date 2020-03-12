@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -25,38 +26,35 @@ import java.io.File
 import java.util.*
 
 @Serializable
-data class Joke (
+data class Joke(
 
-    val categories : List<String>? = null,
+    val categories: List<String>? = null,
 
     @SerialName("created_at")
-    @Optional val createdAt:String ? = null,
+    @Optional val createdAt: String? = null,
 
     @SerialName("icon_url")
-    val iconUrl: String ? = null,
+    val iconUrl: String? = null,
 
     val id: String? = null,
 
     @SerialName("updated_at")
     @Optional val updatedAt: String? = null,
 
-    val url: String ? = null,
-    val value :String
+    val url: String? = null,
+    val value: String
 
 )
 
 
-interface JokeApiService
-{
-    @GET("jokes/random/") //peut etre metre juste /Joke
-    fun giveMeAJoke():Single<Joke>
+interface JokeApiService {
+    @GET("jokes/random/")
+    fun giveMeAJoke(): Single<Joke>
 
 }
 
-object JokeApiServiceFactory
-{
-    fun build_JokeApiService():JokeApiService
-    {
+object JokeApiServiceFactory {
+    fun build_JokeApiService(): JokeApiService {
         val builder = Retrofit.Builder()
             .baseUrl("https://api.chucknorris.io/")
             .addConverterFactory(Json.asConverterFactory(MediaType.get("application/json")))
@@ -70,43 +68,39 @@ object JokeApiServiceFactory
 class MainActivity : AppCompatActivity() {
 
     private var disposable = CompositeDisposable()
+    //var jokesFetched: MutableList<Joke> = mutableListOf<Joke>()
+    private var adapt = JokeAdapter(mutableListOf())
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.i("Jokes",listJokes.toString())
+        Log.i("Jokes", listJokes.toString())
 
+        val recycler: RecyclerView = findViewById(R.id.recycler)
         recycler.layoutManager = LinearLayoutManager(this)
-        //recycler.adapter=JokeAdapter(listJokes.map {Joke(null,null,null,null,null,null,it )})
+        recycler.adapter = adapt
 
+        val JokeService = JokeApiServiceFactory.build_JokeApiService()
+        val jokeCreated: Single<Joke> = JokeService.giveMeAJoke()
 
-
-        val JokeService =JokeApiServiceFactory.build_JokeApiService()
-        val jokeCreated: Single<Joke> =JokeService.giveMeAJoke()
         val subscription = jokeCreated
-                    .subscribeOn(Schedulers.io())
-                    .subscribeBy(onError = {println("error")}, onSuccess= {println("joke caught")})
+            .subscribeOn(Schedulers.io())
+            .subscribeBy(
+                onError = { println("error") },
+                onSuccess = {
+                    println("joke caught:" + it)
+                    adapt.addJoke(it)
+                })
+
         disposable.add(subscription)
 
     }
 
-    override fun onDestroy()
-    {
+    override fun onDestroy() {
         disposable.clear()
         super.onDestroy()
     }
 
-
-
-
-
-    fun setListeJokes(data : List<String>)
-    {
-        listJokes=data
-        recycler.adapter!!.notifyDataSetChanged()
-
-    }
 
 }
 
