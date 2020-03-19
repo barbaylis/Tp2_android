@@ -728,6 +728,7 @@ id beginning
 id blocking
 id bottom
 id buttonPanel
+id button_add
 id center
 id center_horizontal
 id center_vertical

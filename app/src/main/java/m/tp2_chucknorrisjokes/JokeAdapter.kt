@@ -1,8 +1,6 @@
 package m.tp2_chucknorrisjokes
 
-import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +10,6 @@ class JokeAdapter(var listJokes: MutableList<Joke>) :
     class JokeViewHolder(val textview: TextView) : RecyclerView.ViewHolder(textview)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
-        //creation of a joke layout and his holder
         val textviewCreated = LayoutInflater.from(parent.context)
             .inflate(R.layout.joke_layout, parent, false) as TextView
 
