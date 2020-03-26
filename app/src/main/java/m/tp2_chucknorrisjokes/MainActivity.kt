@@ -1,15 +1,11 @@
 package m.tp2_chucknorrisjokes
 
-import android.opengl.Visibility
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.widget.Button
 import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -17,22 +13,15 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.serialization.*
-import kotlinx.serialization.Optional
 import kotlinx.serialization.json.Json
-import m.tp2_chucknorrisjokes.ListJoke.listJokes
 import okhttp3.MediaType
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import io.reactivex.schedulers.Schedulers
-
-
-import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
+
 
 @Serializable
 data class Joke(
@@ -77,7 +66,7 @@ object JokeApiServiceFactory {
 class MainActivity : AppCompatActivity() {
 
     private var disposable = CompositeDisposable()
-    private var adapt = JokeAdapter(mutableListOf())
+    private var adapt = JokeAdapter(mutableListOf(),(this::newJoke))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,22 +76,7 @@ class MainActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapt
 
-
          newJoke()
-
-
-        //button, display a joke
-        val button = findViewById<Button>(R.id.button_add)
-        button.setOnClickListener(object : View.OnClickListener
-        {
-            override fun onClick(v: View)
-            {
-                newJoke()
-            }
-        })
-
-
-
     }
 
     override fun onDestroy() {
