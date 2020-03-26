@@ -1,9 +1,12 @@
 package m.tp2_chucknorrisjokes
 
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.Button
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -29,6 +32,7 @@ import io.reactivex.schedulers.Schedulers
 
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @Serializable
 data class Joke(
@@ -83,7 +87,9 @@ class MainActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapt
 
+
          newJoke()
+
 
         //button, display a joke
         val button = findViewById<Button>(R.id.button_add)
@@ -109,13 +115,17 @@ class MainActivity : AppCompatActivity() {
      */
     fun newJoke()
     {
-        val JokeService = JokeApiServiceFactory.buildJokeApiService()
-        val jokeCreated: Single<Joke> = JokeService.giveMeAJoke()
+        val bar = findViewById<ProgressBar>(R.id.progress_bar) // bar de progression, visible lorsque la joke est en cours de création
+        val jokeService = JokeApiServiceFactory.buildJokeApiService()
+        val jokeCreated: Single<Joke> = jokeService.giveMeAJoke()
 
 
         val subscription = jokeCreated
+            .delay(5, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe{bar.visibility = VISIBLE}
+            .doAfterTerminate{bar.visibility = INVISIBLE}
             .subscribeBy(
                 onError = { println("error") },
                 onSuccess = {
@@ -123,11 +133,9 @@ class MainActivity : AppCompatActivity() {
                     adapt.addJoke(it)
                 })
 
+
         disposable.add(subscription)
-
     }
-
-
 
 
 
