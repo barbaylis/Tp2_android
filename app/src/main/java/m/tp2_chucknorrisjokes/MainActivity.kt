@@ -121,14 +121,16 @@ class MainActivity : AppCompatActivity() {
 
 
         val subscription = jokeCreated
-            .delay(5, TimeUnit.SECONDS)
+            .delay(2, TimeUnit.SECONDS)
+            .repeat(10) /// 10 ajouts de jokes
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe{bar.visibility = VISIBLE}
             .doAfterTerminate{bar.visibility = INVISIBLE}
             .subscribeBy(
                 onError = { println("error") },
-                onSuccess = {
+                onNext = // nouvelle donnée
+                {
                     println("joke caught:" + it)
                     adapt.addJoke(it)
                 })
