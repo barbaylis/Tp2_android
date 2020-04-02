@@ -20,6 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import io.reactivex.schedulers.Schedulers
+import kotlinx.serialization.json.JsonConfiguration
 import java.util.concurrent.TimeUnit
 
 
@@ -76,13 +77,35 @@ class MainActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapt
 
-         newJoke()
+        if(savedInstanceState!=null) //first time
+        {
+            val jokesSavedString=savedInstanceState.getString("List")
+            if(jokesSavedString!=null) {
+                val json = Json(JsonConfiguration.Stable)
+                val jokesSaved = json.parse(Joke.serializer().list, jokesSavedString)
+                jokesSaved.forEach { adapt.addJoke(it) }
+            }
+        }
+
+        else {
+            newJoke()
+        }
     }
 
     override fun onDestroy() {
         disposable.clear()
         super.onDestroy()
     }
+
+
+    override fun onSaveInstanceState(outState: Bundle)
+    {
+        val json = Json(JsonConfiguration.Stable)
+        val jokesString=json.stringify(Joke.serializer().list,adapt.listJokes)
+        outState.putString("List",jokesString)
+        super.onSaveInstanceState(outState)
+    }
+
 
     /**
      * Create a joke with a JokeApiService and add it to the adapter for display
@@ -95,15 +118,15 @@ class MainActivity : AppCompatActivity() {
 
 
         val subscription = jokeCreated
-            .delay(2, TimeUnit.SECONDS)
-            .repeat(10) /// 10 ajouts de jokes
+            //.delay(2, TimeUnit.SECONDS)
+            .repeat(10) // display 10 jokes
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe{bar.visibility = VISIBLE}
             .doAfterTerminate{bar.visibility = INVISIBLE}
             .subscribeBy(
                 onError = { println("error") },
-                onNext = // nouvelle donnée
+                onNext = // new data
                 {
                     println("joke caught:" + it)
                     adapt.addJoke(it)
