@@ -112,13 +112,12 @@ class MainActivity : AppCompatActivity() {
      */
     fun newJoke()
     {
-        val bar = findViewById<ProgressBar>(R.id.progress_bar) // bar de progression, visible lorsque la joke est en cours de création
+        val bar = findViewById<ProgressBar>(R.id.progress_bar)
         val jokeService = JokeApiServiceFactory.buildJokeApiService()
         val jokeCreated: Single<Joke> = jokeService.giveMeAJoke()
 
 
         val subscription = jokeCreated
-            //.delay(2, TimeUnit.SECONDS)
             .repeat(10) // display 10 jokes
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
