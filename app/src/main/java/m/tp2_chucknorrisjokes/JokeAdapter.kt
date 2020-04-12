@@ -8,9 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> Unit) :
-    RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
+    RecyclerView.Adapter<JokeAdapter.JokeViewHolder>()  {
 
     class JokeViewHolder(val jokeView: JokeView) : RecyclerView.ViewHolder(jokeView)
 
@@ -18,6 +19,7 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> U
     var logs_share : MutableList<String> =mutableListOf()
     //Logs of star Jokes
     var logs_star : MutableList<String> =mutableListOf()
+
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
@@ -88,4 +90,31 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> U
         this.notifyDataSetChanged()
     }
 
+    /*move a view from initial_position to target_position*/
+    fun onItemMoved(initial_position: Int, target_position: Int)
+    {
+        if (initial_position<target_position) // View must to go down
+        {
+            for (i in initial_position until target_position )
+            {
+                Collections.swap(listJokes, i,i+1)
+            }
+        }
+
+        else // View must go up
+        {
+            for (i in initial_position downTo  target_position+1 )
+            {
+                Collections.swap(listJokes, i,i-1)
+            }
+        }
+        notifyItemMoved(initial_position,target_position)
+    }
+
+
+    fun onJokeRemoved(position: Int)
+    {
+        listJokes.removeAt(position)
+        notifyItemRemoved(position)
+    }
 }

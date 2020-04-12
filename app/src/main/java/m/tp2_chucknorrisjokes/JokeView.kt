@@ -3,6 +3,7 @@ package m.tp2_chucknorrisjokes
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -13,7 +14,9 @@ class JokeView @JvmOverloads constructor(context: Context): ConstraintLayout(con
 
     init {
              LayoutInflater.from(context).inflate(R.layout.joke_layout, this, true)
-        }
+
+    }
+
 
 
     fun setupView(model: Model)

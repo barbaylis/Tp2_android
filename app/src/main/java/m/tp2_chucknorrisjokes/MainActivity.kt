@@ -3,8 +3,10 @@ package m.tp2_chucknorrisjokes
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -68,16 +70,22 @@ class MainActivity : AppCompatActivity() {
 
     private var disposable = CompositeDisposable()
     private var adapt = JokeAdapter(mutableListOf(),(this::newJoke))
+    val itemHelper = JokeTouchHelper((adapt::onJokeRemoved),(adapt::onItemMoved ))
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val recycler: RecyclerView = findViewById(R.id.recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapt
+        itemHelper.attachToRecyclerView(recycler)
 
-        if(savedInstanceState!=null) //first time
+        //display of Jokes
+        if(savedInstanceState!=null) //not first time
         {
             val jokesSavedString=savedInstanceState.getString("List")
             if(jokesSavedString!=null) {
@@ -86,10 +94,12 @@ class MainActivity : AppCompatActivity() {
                 jokesSaved.forEach { adapt.addJoke(it) }
             }
         }
-
         else {
             newJoke()
         }
+
+
+
     }
 
     override fun onDestroy() {

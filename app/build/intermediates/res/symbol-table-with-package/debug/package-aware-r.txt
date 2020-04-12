@@ -658,6 +658,9 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable share_grey
+drawable star_softpink
+drawable star_softpink_notpressed
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
 id ALT
@@ -724,6 +727,7 @@ id all
 id always
 id async
 id barrier
+id barrier_right
 id beginning
 id blocking
 id bottom
@@ -810,6 +814,7 @@ id search_plate
 id search_src_text
 id search_voice_btn
 id select_dialog_listview
+id share_button
 id shortcut
 id showCustom
 id showHome
@@ -822,6 +827,7 @@ id src_atop
 id src_in
 id src_over
 id standard
+id star_button
 id start
 id submenuarrow
 id submit_area
