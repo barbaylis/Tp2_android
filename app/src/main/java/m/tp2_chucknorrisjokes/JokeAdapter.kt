@@ -1,14 +1,16 @@
 package m.tp2_chucknorrisjokes
 
-import android.content.ContentValues.TAG
-import android.graphics.drawable.Drawable
-import android.util.Log
+
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
+import android.content.Intent
+import androidx.core.content.ContextCompat.startActivity
+
 
 class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> Unit) :
     RecyclerView.Adapter<JokeAdapter.JokeViewHolder>()  {
@@ -19,8 +21,6 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> U
     var logs_share : MutableList<String> =mutableListOf()
     //Logs of star Jokes
     var logs_star : MutableList<String> =mutableListOf()
-
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
         val jokeViewCreated = JokeView(parent.context)
@@ -77,8 +77,18 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: () -> U
             override fun onClick(v: View)
             {
                 logs_share.add(listJokes[position].id) //add the id of the joke in logs_share list
+
+                //share of the joke
+                val sendIntent = Intent().apply {
+                    action=Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, listJokes[position].value) //text to sent
+                    type = "text/plain"
+                }
+                val shareIntent=Intent.createChooser(sendIntent, "Partager" )
+                startActivity(holder.jokeView.context,shareIntent,null)
             }
         })
+
 
         val newModel = JokeView.Model(newT, newShareB, newStarB)
 
