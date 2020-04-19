@@ -1,25 +1,8 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+            "outputFile": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
             "map": [
-                {
-                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp\\app\\src\\main\\res\\values\\colors.xml",
-                    "from": {
-                        "startLines": "4,2,3",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "157,57,105",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "198,99,151"
-                    },
-                    "to": {
-                        "startLines": "154,155,156",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "7760,7806,7853",
-                        "endColumns": "45,46,50",
-                        "endOffsets": "7801,7848,7899"
-                    }
-                },
                 {
                     "source": "C:\\Users\\Barbara\\.gradle\\caches\\transforms-2\\files-2.1\\386243075ba6de3ec321ab8584f85213\\constraintlayout-1.1.3\\res\\values\\values.xml",
                     "from": {
@@ -59,20 +42,22 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp\\app\\src\\main\\res\\values\\strings.xml",
+                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp2\\app\\src\\main\\res\\values\\styles.xml",
                     "from": {
-                        "startLines": "1",
+                        "startLines": "3",
                         "startColumns": "4",
-                        "startOffsets": "17",
-                        "endColumns": "57",
-                        "endOffsets": "70"
+                        "startOffsets": "57",
+                        "endLines": "8",
+                        "endColumns": "12",
+                        "endOffsets": "376"
                     },
                     "to": {
-                        "startLines": "423",
+                        "startLines": "431",
                         "startColumns": "4",
-                        "startOffsets": "25304",
-                        "endColumns": "57",
-                        "endOffsets": "25357"
+                        "startOffsets": "25928",
+                        "endLines": "436",
+                        "endColumns": "12",
+                        "endOffsets": "26242"
                     }
                 },
                 {
@@ -95,25 +80,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp\\app\\src\\main\\res\\values\\styles.xml",
-                    "from": {
-                        "startLines": "3",
-                        "startColumns": "4",
-                        "startOffsets": "57",
-                        "endLines": "8",
-                        "endColumns": "12",
-                        "endOffsets": "376"
-                    },
-                    "to": {
-                        "startLines": "431",
-                        "startColumns": "4",
-                        "startOffsets": "25928",
-                        "endLines": "436",
-                        "endColumns": "12",
-                        "endOffsets": "26242"
-                    }
-                },
-                {
                     "source": "C:\\Users\\Barbara\\.gradle\\caches\\transforms-2\\files-2.1\\5e3b7f6f6cf73ea1636410ef661f5eb4\\recyclerview-1.1.0\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
@@ -130,6 +96,40 @@
                         "endLines": "131,285,286,287,295,296,297,361,3108",
                         "endColumns": "55,58,47,55,74,75,71,65,24",
                         "endOffsets": "6130,16627,16675,16731,17417,17493,17565,21424,196378"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp2\\app\\src\\main\\res\\values\\colors.xml",
+                    "from": {
+                        "startLines": "4,2,3",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "157,57,105",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "198,99,151"
+                    },
+                    "to": {
+                        "startLines": "154,155,156",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "7760,7806,7853",
+                        "endColumns": "45,46,50",
+                        "endOffsets": "7801,7848,7899"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp2\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "4",
+                        "startOffsets": "17",
+                        "endColumns": "57",
+                        "endOffsets": "70"
+                    },
+                    "to": {
+                        "startLines": "423",
+                        "startColumns": "4",
+                        "startOffsets": "25304",
+                        "endColumns": "57",
+                        "endOffsets": "25357"
                     }
                 },
                 {

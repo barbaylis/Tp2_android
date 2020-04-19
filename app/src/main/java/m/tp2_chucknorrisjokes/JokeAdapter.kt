@@ -1,27 +1,17 @@
 package m.tp2_chucknorrisjokes
 
 
-import android.view.View
+
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
 
 
-class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRepeat: Int, progressToAppear: Boolean ) -> Unit, val addPreference: (joke: Joke) -> Unit, val removePreference: (joke: Joke) -> Unit) :
+
+class JokeAdapter(val models: MutableList<JokeView.Model>, val OnBottomReached: (numRepeat: Int, progressToAppear: Boolean ) -> Unit, val addPreference: (joke: Joke) -> Unit, val removePreference: (joke: Joke) -> Unit) :
     RecyclerView.Adapter<JokeAdapter.JokeViewHolder>()  {
 
     class JokeViewHolder(val jokeView: JokeView) : RecyclerView.ViewHolder(jokeView)
-
-    // Logs of shared Jokes
-    var logsShare : MutableList<String> =mutableListOf()
-    //Logs of star Jokes
-    var logsStar : MutableList<String> =mutableListOf()
-
-    var jokeToStar : Boolean = false
 
     /**
      * Create View
@@ -39,8 +29,11 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
         return JokeViewHolder(jokeViewCreated)
     }
 
+    /**
+     *
+     */
     override fun getItemCount(): Int {
-        return listJokes.count()
+        return models.count()
     }
 
 
@@ -52,80 +45,22 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
             OnBottomReached(10,true)
         }
 
-        /////Creation of the model////
-
-        //TextView with the newJoke
-        val newT = holder.jokeView.findViewById(R.id.joke_layout) as TextView
-        newT.text = listJokes[position].value
-
-        //star button behavior
-        val newStarB = holder.jokeView.findViewById(R.id.star_button) as ImageButton
-        if(jokeToStar) //open the apli with the joke already stared
-            {
-                newStarB.setImageResource(R.drawable.star_softpink)
-            } // put image full star
-
-        newStarB.setOnClickListener(object : View.OnClickListener{
-            override fun onClick(v: View)
-            {
-                if (logsStar.contains(listJokes[position].id ) ) //already clicked
-                {
-                    logsStar.remove(listJokes[position].id)//remove from the star jokes list
-                    removePreference(listJokes[position]) //remove the joke from the preference file
-
-                    newStarB.setImageResource(R.drawable.star_softpink_notpressed) // put image star border
-                }
-
-
-                else //not already clicked
-                {
-                    logsStar.add(listJokes[position].id) //add the id of the joke in logsStar list
-                    addPreference(listJokes[position]) // add the joke to the preference file
-                    newStarB.setImageResource(R.drawable.star_softpink) // put image full star
-
-                }
-            }
-        })
-
-
-        //share button behavior
-        val newShareB = holder.jokeView.findViewById(R.id.share_button) as ImageButton
-        newShareB.setOnClickListener(object : View.OnClickListener{
-            override fun onClick(v: View)
-            {
-                logsShare.add(listJokes[position].id) //add the id of the joke in logsShare list
-
-                //share of the joke
-                val sendIntent = Intent().apply {
-                    action=Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, listJokes[position].value) //text to sent
-                    type = "text/plain"
-                }
-                val shareIntent=Intent.createChooser(sendIntent, "Partager" )
-                startActivity(holder.jokeView.context,shareIntent,null)
-            }
-        })
-
-
-        val newModel = JokeView.Model(newT, newShareB, newStarB)
-
-        holder.jokeView.setupView(newModel) // send the model to update the view
+        holder.jokeView.setupView(models.get(position)) // send the model to update the view
 
     }
-
 
     /**
-     * Add joke to be displayed
+     * Add the model to be displayed
      */
-    fun addJoke(joke: Joke, toStar :Boolean) {
-
-
-        this.listJokes.add(joke)
-        jokeToStar=toStar
-        this.notifyDataSetChanged()
-
+    fun updateData(newModels: List<JokeView.Model>)
+    {
+       newModels.forEach {
+           models.add(it)
+           this.notifyDataSetChanged()
+       }
 
     }
+
 
     /**
      * Move a view from initial_position to target_position
@@ -136,7 +71,7 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
         {
             for (i in initial_position until target_position )
             {
-                Collections.swap(listJokes, i,i+1)
+                Collections.swap(models, i,i+1)
             }
         }
 
@@ -144,7 +79,7 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
         {
             for (i in initial_position downTo  target_position+1 )
             {
-                Collections.swap(listJokes, i,i-1)
+                Collections.swap(models, i,i-1)
             }
         }
         notifyItemMoved(initial_position,target_position)
@@ -156,7 +91,8 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
      */
     fun onJokeRemoved(position: Int)
     {
-        listJokes.removeAt(position)
+
+        models.removeAt(position)
         notifyItemRemoved(position)
     }
 }

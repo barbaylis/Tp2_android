@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ro\\values-ro.xml",
+            "outputFile": "C:\\Users\\Barbara\\AndroidStudioProjects\\Ouap_android\\Tp2_android - temp2\\app\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-ro\\values-ro.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Barbara\\.gradle\\caches\\transforms-2\\files-2.1\\2c64f059f1282f142c7f7fc83a4de49e\\appcompat-1.0.2\\res\\values-ro\\values-ro.xml",
