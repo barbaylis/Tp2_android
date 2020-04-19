@@ -3,6 +3,7 @@ package m.tp2_chucknorrisjokes
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View.INVISIBLE
@@ -11,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -80,9 +82,9 @@ class MainActivity : AppCompatActivity() {
     var jokesPrefsDirectory :SharedPreferences? = null
 
 
-
-
-
+    /**
+     * Called at the launch of the application
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -128,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                 val jokesSaved = json.parse(Joke.serializer().list, jokesSavedString)
                jokesSaved.forEach {
 
-                   // check if the jokes was stared
+                   // check if the jokes was shared
                     if(adapt.logsStar.contains(it.id))
                     {
                         adapt.addJoke(it,true) // add the joke
@@ -183,20 +185,52 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 }
+
+
             if (numJokeToDisplay !=0)
-              {newJoke(numJokeToDisplay)} //display new Joke up to 10 jokes in all
+              {
+                  newJoke(numJokeToDisplay,true)//display new Joke up to 10 jokes in all
+              }
         }
 
+
+        // for swipe to refresh, when restart the application, keep old preferences
+        val refresh  : SwipeRefreshLayout = findViewById(R.id.refresh)
+        refresh.setColorSchemeColors(Color.BLACK)
+
+        refresh.setOnRefreshListener (
+             object : SwipeRefreshLayout.OnRefreshListener {
+                 override fun onRefresh() {
+
+                     adapt.listJokes.clear()
+                     val newadapt = JokeAdapter(
+                         mutableListOf(),
+                         (this@MainActivity::newJoke),
+                         (this@MainActivity::addPreference),
+                         (this@MainActivity::removePreference)
+                     )
+                     adapt = newadapt
+                     recycler.adapter = adapt
+                     newJoke(10,false)
+                     refresh.setRefreshing(false)
+                 }
+             }
+        )
 
 
     }
 
+    /**
+     * When the application is destroyed
+     */
     override fun onDestroy() {
         disposable.clear()
         super.onDestroy()
     }
 
-
+    /**
+     * Save jokes,logStar and lodShare from the adapter list in the bundle in case of rotation
+     */
     override fun onSaveInstanceState(outState: Bundle)
     {
         val json = Json(JsonConfiguration.Stable)
@@ -213,8 +247,9 @@ class MainActivity : AppCompatActivity() {
     /**
      * Create a joke with a JokeApiService and add it to the adapter for display
      */
-    fun newJoke(numRepeat :Int )
+    fun newJoke(numRepeat :Int ,progressToAppeare :Boolean)
     {
+
         val bar = findViewById<ProgressBar>(R.id.progress_bar)
         val jokeService = JokeApiServiceFactory.buildJokeApiService()
         val jokeCreated: Single<Joke> = jokeService.giveMeAJoke()
@@ -224,8 +259,9 @@ class MainActivity : AppCompatActivity() {
             .repeat(numRepeat.toLong()) // display numRepeat jokes
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe{bar.visibility = VISIBLE}
-            .doAfterTerminate{bar.visibility = INVISIBLE}
+            .doOnSubscribe{
+                if(progressToAppeare){bar.visibility = VISIBLE}}
+            .doAfterTerminate{if(progressToAppeare){bar.visibility = INVISIBLE}}
             .subscribeBy(
                 onError = { },
                 onNext = // new data
@@ -237,11 +273,14 @@ class MainActivity : AppCompatActivity() {
         disposable.add(subscription)
     }
 
-    // update the file pref with a new joke preference
+    /**
+     * update the file pref with a new joke preference
+     */
     fun addPreference (oneJoke: Joke)
     {
         jokesPrefsDirectory = getSharedPreferences(filePref, Context.MODE_PRIVATE)
         val editorPref= jokesPrefsDirectory!!.edit() //editor to write into file pref
+
 
         //parse Joke to String thanks to Json
         val json = Json(JsonConfiguration.Stable)
@@ -252,7 +291,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    // update the file pref in removing a joke preference
+    /**
+     * update the file pref in removing a joke preference
+     */
     fun removePreference (oneJoke: Joke)
     {
         jokesPrefsDirectory = getSharedPreferences(filePref, Context.MODE_PRIVATE)

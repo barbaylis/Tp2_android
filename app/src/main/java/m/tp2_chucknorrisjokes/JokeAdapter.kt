@@ -11,7 +11,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat.startActivity
 
 
-class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRepeat: Int) -> Unit, val addPreference: (joke: Joke) -> Unit, val removePreference: (joke: Joke) -> Unit) :
+class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRepeat: Int, progressToAppear: Boolean ) -> Unit, val addPreference: (joke: Joke) -> Unit, val removePreference: (joke: Joke) -> Unit) :
     RecyclerView.Adapter<JokeAdapter.JokeViewHolder>()  {
 
     class JokeViewHolder(val jokeView: JokeView) : RecyclerView.ViewHolder(jokeView)
@@ -23,7 +23,9 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
 
     var jokeToStar : Boolean = false
 
-
+    /**
+     * Create View
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
         val jokeViewCreated = JokeView(parent.context)
 
@@ -42,10 +44,12 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
     }
 
 
-
+    /**
+     * Bind the model in the ViewHolder
+     */
     override fun onBindViewHolder(holder: JokeViewHolder, position: Int) {
         if (position == this.itemCount - 1) {
-            OnBottomReached(10)
+            OnBottomReached(10,true)
         }
 
         /////Creation of the model////
@@ -68,6 +72,7 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
                 {
                     logsStar.remove(listJokes[position].id)//remove from the star jokes list
                     removePreference(listJokes[position]) //remove the joke from the preference file
+
                     newStarB.setImageResource(R.drawable.star_softpink_notpressed) // put image star border
                 }
 
@@ -109,20 +114,22 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
     }
 
 
+    /**
+     * Add joke to be displayed
+     */
     fun addJoke(joke: Joke, toStar :Boolean) {
 
 
         this.listJokes.add(joke)
         jokeToStar=toStar
+        this.notifyDataSetChanged()
 
-         this.notifyDataSetChanged()
-
-
-            //this.notifyItemChanged(listJokes.indexOf(joke), "bonjour")
 
     }
 
-    /*move a view from initial_position to target_position*/
+    /**
+     * Move a view from initial_position to target_position
+     */
     fun onItemMoved(initial_position: Int, target_position: Int)
     {
         if (initial_position<target_position) // View must to go down
@@ -144,10 +151,11 @@ class JokeAdapter(var listJokes: MutableList<Joke>, val OnBottomReached: (numRep
     }
 
 
-
+    /**
+     * Remove a view
+     */
     fun onJokeRemoved(position: Int)
     {
-
         listJokes.removeAt(position)
         notifyItemRemoved(position)
     }
