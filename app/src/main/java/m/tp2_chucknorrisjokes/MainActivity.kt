@@ -1,9 +1,10 @@
 package m.tp2_chucknorrisjokes
 
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.ImageButton
@@ -23,7 +24,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.JsonConfiguration
-import java.util.concurrent.TimeUnit
 
 
 @Serializable
@@ -68,9 +68,18 @@ object JokeApiServiceFactory {
 
 class MainActivity : AppCompatActivity() {
 
+    var numJokeToDisplay: Int=10
+
     private var disposable = CompositeDisposable()
-    private var adapt = JokeAdapter(mutableListOf(),(this::newJoke))
-    val itemHelper = JokeTouchHelper((adapt::onJokeRemoved),(adapt::onItemMoved ))
+    private var adapt = JokeAdapter(mutableListOf(),(this::newJoke), (this::addPreference), (this::removePreference))
+
+    val itemHelper = JokeTouchHelper((adapt::onJokeRemoved),(adapt::onItemMoved )) // choose the behavior of touch screen
+
+    //file for jokes preferences
+    val filePref ="jokes_prefs"
+    var jokesPrefsDirectory :SharedPreferences? = null
+
+
 
 
 
@@ -79,23 +88,103 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        //recycler
         val recycler: RecyclerView = findViewById(R.id.recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapt
         itemHelper.attachToRecyclerView(recycler)
 
-        //display of Jokes
-        if(savedInstanceState!=null) //not first time
+        // for manage pref jokes
+        jokesPrefsDirectory = getSharedPreferences(filePref, Context.MODE_PRIVATE) // file private at this activity
+
+        /////display of Jokes
+
+        if(savedInstanceState!=null) // == rotation
         {
-            val jokesSavedString=savedInstanceState.getString("List")
-            if(jokesSavedString!=null) {
-                val json = Json(JsonConfiguration.Stable)
+            val jokesSavedString=savedInstanceState.getString("List_joke")
+            val jokesSharedString=savedInstanceState.getString("List_share")
+            val jokesStaredString=savedInstanceState.getString("List_star")
+            val json = Json(JsonConfiguration.Stable)
+
+            //restore old stared jokes list
+            if (jokesStaredString!=null)
+            {
+                val idSaved = json.parse(String.serializer().list, jokesStaredString)
+                adapt.logsStar=idSaved.toMutableList()
+
+            }
+
+            //restore old shared jokes list
+            if(jokesSharedString!= null)
+            {
+                val jokesShared = json.parse(String.serializer().list, jokesSharedString)
+                adapt.logsShare=jokesShared.toMutableList()
+            }
+
+            // restore old jokes displayed
+            if(jokesSavedString!=null)
+            {
                 val jokesSaved = json.parse(Joke.serializer().list, jokesSavedString)
-                jokesSaved.forEach { adapt.addJoke(it) }
+               jokesSaved.forEach {
+
+                   // check if the jokes was stared
+                    if(adapt.logsStar.contains(it.id))
+                    {
+                        adapt.addJoke(it,true) // add the joke
+
+                        //restore image star button
+                        val viewHolder=recycler.findViewHolderForAdapterPosition(adapt.listJokes.indexOf(it))
+                        if (viewHolder!=null)
+                        {
+                            val starButton =viewHolder.itemView.findViewById(R.id.star_button) as ImageButton
+                            starButton.setImageResource(R.drawable.star_softpink_notpressed) // put image star border
+                            adapt.notifyItemChanged(adapt.itemCount)
+                        }
+
+                    }
+                    else
+                    { adapt.addJoke(it,false) }
+                }
+
             }
         }
-        else {
-            newJoke()
+        else{
+
+                /* management of file jokes preferences */
+
+                if (jokesPrefsDirectory!= null)
+                {
+                    val jokesPref :Map<String,*> = jokesPrefsDirectory!!.getAll()
+
+                    if (jokesPref.isNotEmpty()) // there are already star jokes
+                    {
+                        if(jokesPref.size >=10) // check if it's needed to display other jokes after
+                        {numJokeToDisplay=0}
+                        else
+                        {numJokeToDisplay=numJokeToDisplay-jokesPref.size} // complement up to 10 jokes display
+
+
+                        for( (key,jokeString) in jokesPref) // for each item
+                        {
+                            if (jokeString is String)// check if it's well a joke
+                            {
+                                //parse String into Joke thanks to JSON
+                                val json = Json(JsonConfiguration.Stable)
+                                val joke= json.parse(Joke.serializer(), jokeString)
+
+                                adapt.logsStar.add(joke.id) // add it's id to the logs_star list
+                                adapt.addJoke(joke,true) // display joke
+
+
+
+                            }
+                        }
+                    }
+
+                }
+            if (numJokeToDisplay !=0)
+              {newJoke(numJokeToDisplay)} //display new Joke up to 10 jokes in all
         }
 
 
@@ -112,15 +201,19 @@ class MainActivity : AppCompatActivity() {
     {
         val json = Json(JsonConfiguration.Stable)
         val jokesString=json.stringify(Joke.serializer().list,adapt.listJokes)
-        outState.putString("List",jokesString)
+        val starIdString=json.stringify(String.serializer().list,adapt.logsStar)
+        val shareIdString=json.stringify(String.serializer().list,adapt.logsShare)
+        outState.putString("List_joke",jokesString)
+        outState.putString("List_star",starIdString)
+        outState.putString("List_share",shareIdString)
         super.onSaveInstanceState(outState)
     }
-
+//
 
     /**
      * Create a joke with a JokeApiService and add it to the adapter for display
      */
-    fun newJoke()
+    fun newJoke(numRepeat :Int )
     {
         val bar = findViewById<ProgressBar>(R.id.progress_bar)
         val jokeService = JokeApiServiceFactory.buildJokeApiService()
@@ -128,24 +221,45 @@ class MainActivity : AppCompatActivity() {
 
 
         val subscription = jokeCreated
-            .repeat(10) // display 10 jokes
+            .repeat(numRepeat.toLong()) // display numRepeat jokes
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe{bar.visibility = VISIBLE}
             .doAfterTerminate{bar.visibility = INVISIBLE}
             .subscribeBy(
-                onError = { println("error") },
+                onError = { },
                 onNext = // new data
                 {
-                    println("joke caught:" + it)
-                    adapt.addJoke(it)
+                    adapt.addJoke(it,false)
                 })
 
 
         disposable.add(subscription)
     }
 
+    // update the file pref with a new joke preference
+    fun addPreference (oneJoke: Joke)
+    {
+        jokesPrefsDirectory = getSharedPreferences(filePref, Context.MODE_PRIVATE)
+        val editorPref= jokesPrefsDirectory!!.edit() //editor to write into file pref
 
+        //parse Joke to String thanks to Json
+        val json = Json(JsonConfiguration.Stable)
+        val jokeString=json.stringify(Joke.serializer(),oneJoke)
+        editorPref.putString(oneJoke.id,jokeString)
+        editorPref.apply()
+
+
+    }
+
+    // update the file pref in removing a joke preference
+    fun removePreference (oneJoke: Joke)
+    {
+        jokesPrefsDirectory = getSharedPreferences(filePref, Context.MODE_PRIVATE)
+        val editorPref= jokesPrefsDirectory!!.edit() //editor to write into file pref
+        editorPref.remove(oneJoke.id)
+        editorPref.apply()
+    }
 
 
 }

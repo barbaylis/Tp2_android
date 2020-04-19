@@ -3,6 +3,8 @@ package m.tp2_chucknorrisjokes
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
+/* class for the behavior of touch screen
+* ex: drag, swipe*/
 class JokeTouchHelper(private val onJokeRemoved: (position: Int) -> Unit , private val onItemMoved:(ini: Int, final : Int) -> Unit ):
     ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(UP or DOWN,LEFT or RIGHT)
     {
